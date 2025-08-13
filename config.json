@@ -1,0 +1,66 @@
+{
+    "smtp_settings": {
+        "server": "",
+        "port": "",
+        "username": "",
+        "password": ""
+    },
+    "vcard_enabled": true,
+    "vcard_image": "kartvizitler\\",
+    "auto_backup_enabled": true,
+    "auto_backup_interval": 3600,
+    "sound_enabled": true,
+    "popup_enabled": true,
+    "email_error_enabled": true,
+    "log_dir": "",
+    "bcc_enabled": false,
+    "sending_stats": {
+        "hourly_sent_count": 0,
+        "daily_sent_count": 0,
+        "last_hourly_reset": "2025-08-13T09:00:00",
+        "last_daily_reset": "2025-08-13T00:00:00",
+        "last_save_time": "2025-08-13T09:51:52.838446"
+    },
+    "settings": {
+        "backup_enabled": true,
+        "backup_dir": "D:\\Projeler\\Otomatik_E-posta\\Yedek",
+        "sound_enabled": true,
+        "popup_enabled": true,
+        "email_error_enabled": true,
+        "log_dir": "D:\\Projeler\\Otomatik_E-posta\\logs",
+        "vcard_signature_enabled": true,
+        "signature_name": "Mustafa KORKMAZ",
+        "signature_phone": "0850 346 10 32",
+        "signature_mobile": "",
+        "signature_email": "satis@biosoft.com.tr",
+        "signature_web": "www.biosoft.com.tr",
+        "signature_address": "Fatih Mah. Dağsaray Sok. No: 2/B SELÇUKLU / KONYA",
+        "signature_services": "Personel Devam Kontrol Sistemleri",
+        "smtp_server": "mail.biosoft.com.tr",
+        "smtp_port": "465",
+        "sender_email": "satis@biosoft.com.tr",
+        "sender_password": ".uGwNibCN9dt",
+        "vcard_enabled": true,
+        "vcard_image_path": "",
+        "bcc_enabled": true,
+        "email_delay_schedule": "5"
+    },
+    "database": {
+        "host": "localhost",
+        "port": "5432",
+        "database": "PDKS_Musteri",
+        "user": "postgres",
+        "password": "44krkmz44"
+    },
+    "schedule": {
+        "hourly_limit": "30",
+        "daily_limit": "150",
+        "limit_enabled": true,
+        "email_delay_schedule": "5"
+    },
+    "auto_backup": {
+        "enabled": true,
+        "interval": 60,
+        "last_backup": null
+    }
+}

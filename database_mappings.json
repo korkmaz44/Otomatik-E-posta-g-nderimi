@@ -1,0 +1,12 @@
+{
+  "bayi": {
+    "ID": "id",
+    "il": "il",
+    "Sektör": "sektor",
+    "Firma Adı": "firma_adi",
+    "Yetkili Adı Soyadı": "yetkili_adi_soyadi",
+    "E-posta-1": "e_posta_1",
+    "E-posta 2": "e_posta_2",
+    "Web sitesi": "web_sitesi"
+  }
+}

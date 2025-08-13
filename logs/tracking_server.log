@@ -1,0 +1,56 @@
+2025-08-07 10:09:06,103 - __main__ - INFO - Takip sunucusu başlatılıyor...
+2025-08-07 10:09:18,352 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://10.172.160.175:8080
+2025-08-07 10:09:18,353 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-07 10:09:25,169 - __main__ - INFO - Takip sunucusu başlatılıyor...
+2025-08-07 10:09:37,306 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://10.172.160.175:8080
+2025-08-07 10:09:37,307 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-07 10:12:32,055 - __main__ - INFO - E-posta açıldı: 38304cb9-29c7-482e-8952-f498d6813b3d -> test@example.com
+2025-08-07 10:12:32,056 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 10:12:32] "GET /track?id=38304cb9-29c7-482e-8952-f498d6813b3d&email=test@example.com&subject=Test HTTP/1.1" 200 -
+2025-08-07 10:13:20,890 - __main__ - INFO - Takip sunucusu başlatılıyor...
+2025-08-07 10:13:32,986 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://10.172.160.175:8080
+2025-08-07 10:13:32,989 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-07 10:15:12,448 - __main__ - INFO - Takip sunucusu başlatılıyor...
+2025-08-07 10:15:13,369 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.196:8080
+2025-08-07 10:15:13,370 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-07 10:22:28,923 - __main__ - INFO - Takip sunucusu başlatılıyor...
+2025-08-07 10:22:29,788 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.196:8080
+2025-08-07 10:22:29,789 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-07 10:32:36,319 - __main__ - INFO - Takip sunucusu başlatılıyor...
+2025-08-07 10:32:37,585 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.196:8080
+2025-08-07 10:32:37,586 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-07 10:46:22,121 - __main__ - INFO - Takip sunucusu başlatılıyor...
+2025-08-07 10:46:22,987 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.196:8080
+2025-08-07 10:46:22,988 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-07 10:53:05,416 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 10:53:05] "GET /health HTTP/1.1" 200 -
+2025-08-07 10:57:57,437 - __main__ - ERROR - Veritabanı kayıt hatası: HATA:  "updated_at" kolonu "email_tracking" tablosunda mevcut değil
+LINE 10:                         updated_at = NOW()
+                                 ^
+
+2025-08-07 10:57:57,438 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 10:57:57] "GET /track?id=test-123&email=test@example.com&subject=Test HTTP/1.1" 200 -
+2025-08-07 11:02:33,794 - __main__ - INFO - Takip sunucusu başlatılıyor...
+2025-08-07 11:02:34,778 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.1.196:8080
+2025-08-07 11:02:34,778 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
