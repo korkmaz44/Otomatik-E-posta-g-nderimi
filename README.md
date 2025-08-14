@@ -1,2 +1,2 @@
-# Otomatik-E-posta-g-nderimi
+# Otomatik-E-posta-gonderimi
 Otomatik E-posta gönderimi
