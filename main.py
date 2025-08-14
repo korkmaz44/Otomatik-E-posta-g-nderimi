@@ -119,6 +119,9 @@ def send_email_smtp(subject, body, to, attachments=None, smtp_settings=None, is_
         msg['From'] = smtp_settings['username']
         msg['To'] = to
         msg['Subject'] = subject
+        msg['Disposition-Notification-To'] = smtp_settings['username']
+        msg['Return-Receipt-To'] = smtp_settings['username']
+        msg['X-Confirm-Reading-To'] = smtp_settings['username']
         
         # E-posta gövdesi için multipart/alternative
         alternative_part = MIMEMultipart('alternative')
@@ -870,7 +873,7 @@ class MainWindow(QMainWindow):
         self.filter_il = QComboBox()
         self.filter_il.setEditable(True)
         filter_layout.addWidget(self.filter_il, 1, 1)
-
+        
         # Sektör filtresi
         filter_layout.addWidget(QLabel("Sektör:"), 2, 0)
         self.filter_sektor = QComboBox()
@@ -936,8 +939,8 @@ class MainWindow(QMainWindow):
         layout.addWidget(table_scroll_area)
         layout.addStretch()
 
-        # Dinamik combobox doldurma
-        self.update_filter_comboboxes()
+        # Dinamik combobox doldurma başlangıçta çalıştırılmıyor; bağlantı testinden sonra çağrılacak
+        # self.update_filter_comboboxes()
 
         return widget
 
