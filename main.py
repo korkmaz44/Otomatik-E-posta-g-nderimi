@@ -193,13 +193,23 @@ def send_email_smtp(subject, body, to, attachments=None, smtp_settings=None, is_
                         )
                         msg.attach(part)
         
-        # SSL veya TLS seçimi
-        if int(smtp_settings['port']) == 465:
-            server = smtplib.SMTP_SSL(smtp_settings['server'], int(smtp_settings['port']))
+        # SSL veya TLS seçimi (daha sağlam EHLO ve timeout ile)
+        port = int(smtp_settings['port'])
+        host = smtp_settings['server']
+        if port == 465:
+            server = smtplib.SMTP_SSL(host, port, timeout=30)
+            server.ehlo()
         else:
-            server = smtplib.SMTP(smtp_settings['server'], int(smtp_settings['port']))
+            server = smtplib.SMTP(host, port, timeout=30)
+            server.ehlo()
             server.starttls()
-        server.login(smtp_settings['username'], smtp_settings['password'])
+            server.ehlo()
+        # Bazı sunucularda giriş kullanıcı adı e-posta adresinden farklı olabilir
+        login_username = smtp_settings.get('auth_username', smtp_settings['username'])
+        try:
+            server.login(login_username, smtp_settings['password'])
+        except smtplib.SMTPAuthenticationError as auth_err:
+            raise Exception(f"SMTP kimlik doğrulama hatası (535). Lütfen kullanıcı adı/şifreyi ve gerekirse uygulama şifresini kontrol edin. Sunucu: {host}, Port: {port}. Orijinal hata: {auth_err}")
         text = msg.as_string()
         server.sendmail(smtp_settings['username'], to, text)
         server.quit()
@@ -4106,7 +4116,7 @@ class MainWindow(QMainWindow):
             smtp_server = self.smtp_server_edit.text().strip()
             smtp_port = int(self.smtp_port_edit.text()) if self.smtp_port_edit.text() else 587
             sender_email = self.sender_email_edit.text().strip()
-            sender_password = self.sender_password_edit.text()
+            sender_password = self.sender_password_edit.text().strip()
             
             if not smtp_server or not sender_email or not sender_password:
                 QMessageBox.warning(self, "Uyarı", "SMTP ayarları eksik! Lütfen SMTP sunucu, e-posta ve şifre bilgilerini girin.")
@@ -4495,8 +4505,8 @@ Sistem Yöneticisi"""
             # 1. SMTP ayarlarını kontrol et
             smtp_server = self.smtp_server_edit.text()
             smtp_port = int(self.smtp_port_edit.text()) if self.smtp_port_edit.text() else 587
-            sender_email = self.sender_email_edit.text()
-            sender_password = self.sender_password_edit.text()
+            sender_email = self.sender_email_edit.text().strip()
+            sender_password = self.sender_password_edit.text().strip()
             
             if not smtp_server or not sender_email or not sender_password:
                 QMessageBox.warning(self, "Uyarı", "SMTP ayarları eksik! Lütfen yapılandırma sekmesinden SMTP ayarlarını kontrol edin.")
@@ -4724,8 +4734,8 @@ Sistem Yöneticisi"""
                     
                     smtp_server = self.smtp_server_edit.text()
                     smtp_port = int(self.smtp_port_edit.text()) if self.smtp_port_edit.text() else 587
-                    sender_email = self.sender_email_edit.text()
-                    sender_password = self.sender_password_edit.text()
+                    sender_email = self.sender_email_edit.text().strip()
+                    sender_password = self.sender_password_edit.text().strip()
                     
                     if not smtp_server or not sender_email or not sender_password:
                         self.logger.error(f"SMTP ayarları eksik, zamanlanmış e-posta gönderilemedi: {subject}")
@@ -4878,8 +4888,8 @@ Sistem Yöneticisi"""
             # SMTP ayarlarını kontrol et
             smtp_server = self.smtp_server_edit.text()
             smtp_port = int(self.smtp_port_edit.text()) if self.smtp_port_edit.text() else 587
-            sender_email = self.sender_email_edit.text()
-            sender_password = self.sender_password_edit.text()
+            sender_email = self.sender_email_edit.text().strip()
+            sender_password = self.sender_password_edit.text().strip()
             
             if not smtp_server or not sender_email or not sender_password:
                 QMessageBox.warning(self, "Uyarı", "SMTP ayarları eksik! Lütfen yapılandırma sekmesinden SMTP ayarlarını kontrol edin.")
@@ -5069,7 +5079,7 @@ Sistem Yöneticisi"""
         smtp_server = self.smtp_server_edit.text().strip()
         smtp_port = int(self.smtp_port_edit.text()) if self.smtp_port_edit.text() else 587
         sender_email = self.sender_email_edit.text().strip()
-        sender_password = self.sender_password_edit.text()
+        sender_password = self.sender_password_edit.text().strip()
         smtp_settings = {
             'server': smtp_server,
             'port': smtp_port,
