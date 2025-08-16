@@ -1210,7 +1210,7 @@ class MainWindow(QMainWindow):
         # Tab widget oluştur
         self.email_tab_widget = QTabWidget()
         # Şablon sekme isimlerini daha vurgulu göster
-        self.email_tab_widget.setStyleSheet("QTabBar::tab { color: #D32F2F; font-weight: 600; } QTabBar::tab:selected { color: #B71C1C; }")
+        self.email_tab_widget.setStyleSheet("QTabWidget::pane { border: 1px solid #E0E0E0; top: -1px; } QTabBar::tab { color: #616161; font-weight: 600; padding: 6px 12px; margin-right: 6px; background: #F5F5F5; border: 1px solid #E0E0E0; border-bottom-color: #E0E0E0; border-top-left-radius: 6px; border-top-right-radius: 6px; } QTabBar::tab:selected { color: #FFFFFF; background: #FF5722; border-color: #E64A19; } QTabBar::tab:hover { background: #EEEEEE; }")
 
         # Butonlar için widget - tab bar ile tam hizalama
         btn_widget = QWidget()
