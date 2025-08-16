@@ -42,6 +42,49 @@ from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email import encoders
 
+def plain_text_to_html_with_lists(text):
+    import re
+    lines = text.splitlines()
+    html_parts = []
+    in_list = False
+    list_type = None
+
+    def close_list():
+        nonlocal in_list, list_type
+        if in_list:
+            html_parts.append('</ul>' if list_type == 'ul' else '</ol>')
+            in_list = False
+            list_type = None
+
+    for line in lines:
+        if not line.strip():
+            close_list()
+            continue
+        stripped = line.strip()
+        m_num = re.match(r'^(\d+)[\.\)]\s+(.*)', stripped)
+        m_bullet = re.match(r'^[-•*–—]\s+(.*)', stripped)
+        indented = (len(line) - len(line.lstrip(' '))) >= 2
+        if m_num:
+            if not in_list or list_type != 'ol':
+                close_list()
+                html_parts.append('<ol style="margin:8px 0 12px 20px; padding:0;">')
+                in_list = True
+                list_type = 'ol'
+            html_parts.append(f'<li style="margin:4px 0; line-height:1.35;">{m_num.group(2)}</li>')
+        elif m_bullet or indented:
+            content = m_bullet.group(1) if m_bullet else stripped
+            if not in_list or list_type != 'ul':
+                close_list()
+                html_parts.append('<ul style="margin:8px 0 12px 20px; padding:0; list-style:disc;">')
+                in_list = True
+                list_type = 'ul'
+            html_parts.append(f'<li style="margin:4px 0; line-height:1.35;">{content}</li>')
+        else:
+            close_list()
+            html_parts.append(f'<p style="margin:8px 0; line-height:1.55;">{stripped}</p>')
+    close_list()
+    return ''.join(html_parts)
+
 class TurkishTextEdit(QTextEdit):
     """Türkçe sağ tık menüsü olan QTextEdit"""
     
@@ -502,7 +545,6 @@ class MainWindow(QMainWindow):
         tab_widget.addTab(log_tab, "Loglar")
         
         return tab_widget
-        
     def create_config_tab(self):
         """Yapılandırma sekmesini oluştur"""
         widget = QWidget()
@@ -1091,7 +1133,6 @@ class MainWindow(QMainWindow):
             
         except Exception as e:
             print(f"Filtre comboboxları güncellenemedi: {e}")
-
     def create_email_tab(self):
         """E-posta sekmesini oluştur"""
         widget = QWidget()
@@ -1534,7 +1575,6 @@ class MainWindow(QMainWindow):
             templates = json.load(f)
         for tpl in templates:
             self.create_message_tab_from_data(tpl)
-
     def create_message_tab_from_data(self, tpl):
         """Veriden mesaj şablonu oluştur - Geliştirilmiş versiyon"""
         try:
@@ -2155,7 +2195,6 @@ class MainWindow(QMainWindow):
             self.log_timer.start(2000)  # Her 2 saniyede güncelle
         except Exception as e:
             print(f"Log timer başlatma hatası: {e}")
-    
     def update_log_display(self):
         """Log görüntüleyiciyi güncelle"""
         try:
@@ -2700,13 +2739,13 @@ class MainWindow(QMainWindow):
             
         # Mesaj içeriğini yüksek kontrastlı ve tema-dostu HTML'e çevir
         if not email_body.strip().startswith('<'):
-            # Düz metni HTML'e çevir
-            email_body = email_body.replace('\n', '<br>')
+            # Düz metni HTML'e çevir (madde işaretlerini otomatik listeye dönüştür)
+            converted = plain_text_to_html_with_lists(email_body)
             email_body = f'''
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background-color:#ffffff;">
               <tr>
                 <td align="left" style="font-family: 'Segoe UI', Arial, sans-serif; font-size:15px; line-height:1.7; color:#111827; margin:25px 0; padding:20px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.06); border-left:4px solid #2563eb;">
-                  {email_body}
+                  {converted}
                 </td>
               </tr>
             </table>
@@ -2799,7 +2838,6 @@ class MainWindow(QMainWindow):
             vcard_html = ""
         
         return image_preview_html + email_body + signature_html + vcard_html
-
     def on_vcard_image_changed(self, selected_text):
         """Kartvizit görsel seçimi değiştiğinde çalışır"""
         if selected_text == "Kartvizit Yok":
@@ -3435,7 +3473,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.logger.error(f"Limit kontrolü sırasında hata: {e}")
             return False, f"Limit kontrolü hatası: {e}"
-
     def calculate_safe_sending_count(self, total_recipients):
         """Güvenli gönderim sayısını hesapla"""
         try:
@@ -4074,7 +4111,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.table_list.setRowCount(0)
             QMessageBox.critical(self, "Hata", f"Tablo listesi alınamadı: {e}")
-
     def save_database_config(self):
         """Veritabanı bağlantı ayarlarını config.json dosyasına kaydeder."""
         database = {
@@ -4204,7 +4240,7 @@ Sistem Yöneticisi"""
         elif format_type == "underline":
             formatted_text = f"<u>{selected_text}</u>"
         elif format_type == "strikethrough":
-            formatted_text = f"<s>{selected_text}</s>"
+            formatted_text = f" {selected_text} "
         elif format_type == "justify":
             formatted_text = f"<div style='text-align: justify;'>{selected_text}</div>"
         elif format_type == "align_left":
@@ -4706,7 +4742,6 @@ Sistem Yöneticisi"""
             
         except Exception as e:
             self.logger.error(f"E-posta zamanlayıcısı başlatılırken hata: {e}")
-
     def send_scheduled_email(self):
         """Zamanlanmış e-postayı gönder - Limit Kontrolü ile Düzeltilmiş"""
         try:
@@ -5341,7 +5376,6 @@ Sistem Yöneticisi"""
                 
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Tablo başlıkları yüklenirken hata: {e}")
-
     def load_existing_mapping(self):
         """Mevcut eşleştirmeyi yükle"""
         table_name = self.mapping_table_combo.currentText()
