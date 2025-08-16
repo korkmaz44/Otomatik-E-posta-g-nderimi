@@ -2825,11 +2825,14 @@ class MainWindow(QMainWindow):
             
             # Eğer en az bir alan doluysa HTML oluştur
             if signature_parts:
+                # Fazla boşlukları önlemek için parça stillerini sıklaştır
+                signature_parts = [p.replace("margin: 2px 0;", "margin: 1px 0;") for p in signature_parts]
+                signature_parts = [p.replace("margin: 4px 0 2px 0;", "margin: 2px 0 1px 0;") for p in signature_parts]
                 signature_html = f'''
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background-color:#ffffff; margin-top:25px;">
                   <tr>
-                    <td align="left" style="font-family: 'Segoe UI', Arial, sans-serif; font-size:14px; color:#374151; padding:15px; border-left:4px solid #e74c3c; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                      {('<br>'.join(signature_parts))}
+                    <td align="left" style="font-family: 'Segoe UI', Arial, sans-serif; font-size:14px; color:#374151; padding:12px; line-height:1.35; border-left:4px solid #e74c3c; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                      {''.join(signature_parts)}
                     </td>
                   </tr>
                 </table>
