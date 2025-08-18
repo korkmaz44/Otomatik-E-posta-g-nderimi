@@ -4839,19 +4839,7 @@ Sistem Yöneticisi"""
                                 if send_email_smtp(subject, body_with_signature, recipient, attachments, smtp_settings, True, vcard_image_path):
                                     success_count += 1
                                     self.logger.info(f"BCC e-posta gönderildi: {subject} -> {recipient}")
-                                    # Detaylı log: tek alıcı gönderimi
-                                    try:
-                                        self.logger.log_email_send(
-                                            subject=subject,
-                                            body=body_with_signature,
-                                            recipients=[recipient],
-                                            attachments=attachments,
-                                            smtp_settings=smtp_settings,
-                                            send_time=datetime.now(),
-                                            batch_info={"batch_id": f"scheduled_{current_time.toString('yyyyMMdd_hhmmss')}", "type": "SCHEDULED"}
-                                        )
-                                    except Exception as _:
-                                        pass
+                                    # Başarılı tekil gönderimler için detay kaydı oluşturma (yalnızca batch logu tutulacak)
                                 else:
                                     failed_recipients.append(recipient)
                                     self.logger.error(f"BCC e-posta gönderilemedi: {subject} -> {recipient}")
@@ -4891,19 +4879,7 @@ Sistem Yöneticisi"""
                                 if send_email_smtp(subject, body_with_signature, recipient, attachments, smtp_settings, True, vcard_image_path):
                                     success_count += 1
                                     self.logger.info(f"E-posta gönderildi: {subject} -> {recipient}")
-                                    # Detaylı log: tek alıcı gönderimi
-                                    try:
-                                        self.logger.log_email_send(
-                                            subject=subject,
-                                            body=body_with_signature,
-                                            recipients=[recipient],
-                                            attachments=attachments,
-                                            smtp_settings=smtp_settings,
-                                            send_time=datetime.now(),
-                                            batch_info={"batch_id": f"scheduled_{current_time.toString('yyyyMMdd_hhmmss')}", "type": "SCHEDULED"}
-                                        )
-                                    except Exception as _:
-                                        pass
+                                    # Başarılı tekil gönderimler için detay kaydı oluşturma (yalnızca batch logu tutulacak)
                                 else:
                                     failed_recipients.append(recipient)
                                     self.logger.error(f"E-posta gönderilemedi: {subject} -> {recipient}")
