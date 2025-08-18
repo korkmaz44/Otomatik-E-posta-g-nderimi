@@ -42,6 +42,49 @@ from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email import encoders
 
+def plain_text_to_html_with_lists(text):
+    import re
+    lines = text.splitlines()
+    html_parts = []
+    in_list = False
+    list_type = None
+
+    def close_list():
+        nonlocal in_list, list_type
+        if in_list:
+            html_parts.append('</ul>' if list_type == 'ul' else '</ol>')
+            in_list = False
+            list_type = None
+
+    for line in lines:
+        if not line.strip():
+            close_list()
+            continue
+        stripped = line.strip()
+        m_num = re.match(r'^(\d+)[\.\)]\s+(.*)', stripped)
+        m_bullet = re.match(r'^[-•*–—]\s+(.*)', stripped)
+        indented = (len(line) - len(line.lstrip(' '))) >= 2
+        if m_num:
+            if not in_list or list_type != 'ol':
+                close_list()
+                html_parts.append('<ol style="margin:8px 0 12px 20px; padding:0;">')
+                in_list = True
+                list_type = 'ol'
+            html_parts.append(f'<li style="margin:4px 0; line-height:1.35;">{m_num.group(2)}</li>')
+        elif m_bullet or indented:
+            content = m_bullet.group(1) if m_bullet else stripped
+            if not in_list or list_type != 'ul':
+                close_list()
+                html_parts.append('<ul style="margin:8px 0 12px 20px; padding:0; list-style:disc;">')
+                in_list = True
+                list_type = 'ul'
+            html_parts.append(f'<li style="margin:4px 0; line-height:1.35;">{content}</li>')
+        else:
+            close_list()
+            html_parts.append(f'<p style="margin:8px 0; line-height:1.55;">{stripped}</p>')
+    close_list()
+    return ''.join(html_parts)
+
 class TurkishTextEdit(QTextEdit):
     """Türkçe sağ tık menüsü olan QTextEdit"""
     
@@ -502,7 +545,6 @@ class MainWindow(QMainWindow):
         tab_widget.addTab(log_tab, "Loglar")
         
         return tab_widget
-        
     def create_config_tab(self):
         """Yapılandırma sekmesini oluştur"""
         widget = QWidget()
@@ -1091,7 +1133,6 @@ class MainWindow(QMainWindow):
             
         except Exception as e:
             print(f"Filtre comboboxları güncellenemedi: {e}")
-
     def create_email_tab(self):
         """E-posta sekmesini oluştur"""
         widget = QWidget()
@@ -1168,6 +1209,8 @@ class MainWindow(QMainWindow):
 
         # Tab widget oluştur
         self.email_tab_widget = QTabWidget()
+        # Şablon sekme isimlerini daha vurgulu göster
+        self.email_tab_widget.setStyleSheet("QTabWidget::pane { border: 1px solid #E0E0E0; top: -1px; } QTabBar::tab { color: #616161; font-weight: 600; padding: 6px 12px; margin-right: 6px; background: #F5F5F5; border: 1px solid #E0E0E0; border-bottom-color: #E0E0E0; border-top-left-radius: 6px; border-top-right-radius: 6px; } QTabBar::tab:selected { color: #FF1744; background: #FFFFFF; border-color: #FF1744; } QTabBar::tab:hover { background: #EEEEEE; }")
 
         # Butonlar için widget - tab bar ile tam hizalama
         btn_widget = QWidget()
@@ -1534,7 +1577,6 @@ class MainWindow(QMainWindow):
             templates = json.load(f)
         for tpl in templates:
             self.create_message_tab_from_data(tpl)
-
     def create_message_tab_from_data(self, tpl):
         """Veriden mesaj şablonu oluştur - Geliştirilmiş versiyon"""
         try:
@@ -2155,7 +2197,6 @@ class MainWindow(QMainWindow):
             self.log_timer.start(2000)  # Her 2 saniyede güncelle
         except Exception as e:
             print(f"Log timer başlatma hatası: {e}")
-    
     def update_log_display(self):
         """Log görüntüleyiciyi güncelle"""
         try:
@@ -2700,13 +2741,13 @@ class MainWindow(QMainWindow):
             
         # Mesaj içeriğini yüksek kontrastlı ve tema-dostu HTML'e çevir
         if not email_body.strip().startswith('<'):
-            # Düz metni HTML'e çevir
-            email_body = email_body.replace('\n', '<br>')
+            # Düz metni HTML'e çevir (madde işaretlerini otomatik listeye dönüştür)
+            converted = plain_text_to_html_with_lists(email_body)
             email_body = f'''
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background-color:#ffffff;">
               <tr>
                 <td align="left" style="font-family: 'Segoe UI', Arial, sans-serif; font-size:15px; line-height:1.7; color:#111827; margin:25px 0; padding:20px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.06); border-left:4px solid #2563eb;">
-                  {email_body}
+                  {converted}
                 </td>
               </tr>
             </table>
@@ -2784,11 +2825,14 @@ class MainWindow(QMainWindow):
             
             # Eğer en az bir alan doluysa HTML oluştur
             if signature_parts:
+                # Fazla boşlukları önlemek için parça stillerini sıklaştır
+                signature_parts = [p.replace("margin: 2px 0;", "margin: 1px 0;") for p in signature_parts]
+                signature_parts = [p.replace("margin: 4px 0 2px 0;", "margin: 2px 0 1px 0;") for p in signature_parts]
                 signature_html = f'''
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background-color:#ffffff; margin-top:25px;">
                   <tr>
-                    <td align="left" style="font-family: 'Segoe UI', Arial, sans-serif; font-size:14px; color:#374151; padding:15px; border-left:4px solid #e74c3c; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                      {('<br>'.join(signature_parts))}
+                    <td align="left" style="font-family: 'Segoe UI', Arial, sans-serif; font-size:14px; color:#374151; padding:12px; line-height:1.35; border-left:4px solid #e74c3c; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                      {''.join(signature_parts)}
                     </td>
                   </tr>
                 </table>
@@ -2799,7 +2843,6 @@ class MainWindow(QMainWindow):
             vcard_html = ""
         
         return image_preview_html + email_body + signature_html + vcard_html
-
     def on_vcard_image_changed(self, selected_text):
         """Kartvizit görsel seçimi değiştiğinde çalışır"""
         if selected_text == "Kartvizit Yok":
@@ -3435,7 +3478,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.logger.error(f"Limit kontrolü sırasında hata: {e}")
             return False, f"Limit kontrolü hatası: {e}"
-
     def calculate_safe_sending_count(self, total_recipients):
         """Güvenli gönderim sayısını hesapla"""
         try:
@@ -4074,7 +4116,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.table_list.setRowCount(0)
             QMessageBox.critical(self, "Hata", f"Tablo listesi alınamadı: {e}")
-
     def save_database_config(self):
         """Veritabanı bağlantı ayarlarını config.json dosyasına kaydeder."""
         database = {
@@ -4204,7 +4245,7 @@ class MainWindow(QMainWindow):
         elif format_type == "underline":
             formatted_text = f"<u>{selected_text}</u>"
         elif format_type == "strikethrough":
-            formatted_text = f"<s>{selected_text}</s>"
+            formatted_text = f" {selected_text} "
         elif format_type == "justify":
             formatted_text = f"<div style='text-align: justify;'>{selected_text}</div>"
         elif format_type == "align_left":
@@ -4706,7 +4747,6 @@ class MainWindow(QMainWindow):
             
         except Exception as e:
             self.logger.error(f"E-posta zamanlayıcısı başlatılırken hata: {e}")
-
     def send_scheduled_email(self):
         """Zamanlanmış e-postayı gönder - Limit Kontrolü ile Düzeltilmiş"""
         try:
@@ -4799,12 +4839,33 @@ class MainWindow(QMainWindow):
                                 if send_email_smtp(subject, body_with_signature, recipient, attachments, smtp_settings, True, vcard_image_path):
                                     success_count += 1
                                     self.logger.info(f"BCC e-posta gönderildi: {subject} -> {recipient}")
+                                    # Başarılı tekil gönderimler için detay kaydı oluşturma (yalnızca batch logu tutulacak)
                                 else:
                                     failed_recipients.append(recipient)
                                     self.logger.error(f"BCC e-posta gönderilemedi: {subject} -> {recipient}")
+                                    # Detaylı hata logu
+                                    try:
+                                        self.logger.log_email_error(
+                                            subject=subject,
+                                            recipients=[recipient],
+                                            error_msg="SMTP gönderim başarısız",
+                                            send_time=datetime.now()
+                                        )
+                                    except Exception as _:
+                                        pass
                             except Exception as e:
                                 failed_recipients.append(recipient)
                                 self.logger.error(f"BCC e-posta gönderme hatası ({recipient}): {e}")
+                                # Detaylı hata logu
+                                try:
+                                    self.logger.log_email_error(
+                                        subject=subject,
+                                        recipients=[recipient],
+                                        error_msg=str(e),
+                                        send_time=datetime.now()
+                                    )
+                                except Exception as _:
+                                    pass
                             
                             # Son e-posta değilse bekle
                             if j < len(recipients_to_send_now) - 1:
@@ -4818,12 +4879,33 @@ class MainWindow(QMainWindow):
                                 if send_email_smtp(subject, body_with_signature, recipient, attachments, smtp_settings, True, vcard_image_path):
                                     success_count += 1
                                     self.logger.info(f"E-posta gönderildi: {subject} -> {recipient}")
+                                    # Başarılı tekil gönderimler için detay kaydı oluşturma (yalnızca batch logu tutulacak)
                                 else:
                                     failed_recipients.append(recipient)
                                     self.logger.error(f"E-posta gönderilemedi: {subject} -> {recipient}")
+                                    # Detaylı hata logu
+                                    try:
+                                        self.logger.log_email_error(
+                                            subject=subject,
+                                            recipients=[recipient],
+                                            error_msg="SMTP gönderim başarısız",
+                                            send_time=datetime.now()
+                                        )
+                                    except Exception as _:
+                                        pass
                             except Exception as e:
                                 failed_recipients.append(recipient)
                                 self.logger.error(f"E-posta gönderme hatası ({recipient}): {e}")
+                                # Detaylı hata logu
+                                try:
+                                    self.logger.log_email_error(
+                                        subject=subject,
+                                        recipients=[recipient],
+                                        error_msg=str(e),
+                                        send_time=datetime.now()
+                                    )
+                                except Exception as _:
+                                    pass
                             
                             # Son e-posta değilse bekle
                             if j < len(recipients_to_send_now) - 1:
@@ -4836,6 +4918,25 @@ class MainWindow(QMainWindow):
                         self.update_sending_counters(success_count)
                         # UI'ı güncelle
                         self.refresh_sending_stats()
+
+                    # 4.1 Batch logu (detaylı)
+                    try:
+                        batch_details = f"Toplam {len(recipients_to_send_now)} alıcıya gönderim tamamlandı. "
+                        batch_details += f"Başarılı: {success_count}, Başarısız: {len(failed_recipients)}"
+                        if failed_recipients:
+                            batch_details += f" | Başarısız alıcılar: {', '.join(failed_recipients)}"
+                        self.logger.log_email_batch(
+                            batch_id=f"scheduled_{current_time.toString('yyyyMMdd_hhmmss')}",
+                            total_recipients=len(recipients_to_send_now),
+                            sent_count=success_count,
+                            failed_count=len(failed_recipients),
+                            subject=subject,
+                            send_time=datetime.now(),
+                            recipients=recipients_to_send_now,
+                            details=batch_details
+                        )
+                    except Exception as _:
+                        pass
                     
                     # 5. Kalan alıcılar varsa, zamanlayıcı başlat
                     if recipients_to_send_later:
@@ -5341,7 +5442,6 @@ class MainWindow(QMainWindow):
                 
         except Exception as e:
             QMessageBox.critical(self, "Hata", f"Tablo başlıkları yüklenirken hata: {e}")
-
     def load_existing_mapping(self):
         """Mevcut eşleştirmeyi yükle"""
         table_name = self.mapping_table_combo.currentText()
